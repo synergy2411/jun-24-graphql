@@ -7,16 +7,57 @@ let users = [
   { id: "u003", name: "Chandler Bing", age: 24 },
 ];
 
-const typeDefs = `
-    type Query {
-        users(term : String): [User!]!
-    }
+let posts = [
+  {
+    id: "p001",
+    title: "GraphQL 101",
+    body: "Awesome book",
+    published: false,
+    author: "u003",
+  },
+  {
+    id: "p002",
+    title: "Beginning React",
+    body: "Great Library",
+    published: true,
+    author: "u002",
+  },
+  {
+    id: "p003",
+    title: "Advanced Angular",
+    body: "Super-heroic framework",
+    published: false,
+    author: "u001",
+  },
+  {
+    id: "p004",
+    title: "Mastering NodeJS",
+    body: "For advanced users",
+    published: true,
+    author: "u002",
+  },
+];
 
-    type User {
-        id : ID!
-        name : String!
-        age : Int!
-    }
+const typeDefs = /* GraphQL */ `
+  type Query {
+    users(term: String): [User!]!
+    posts(term: String): [Post!]!
+  }
+
+  type User {
+    id: ID!
+    name: String!
+    age: Int!
+    posts: [Post!]!
+  }
+
+  type Post {
+    id: ID!
+    title: String!
+    body: String!
+    published: Boolean!
+    author: User!
+  }
 `;
 
 const resolvers = {
@@ -28,6 +69,26 @@ const resolvers = {
         );
       }
       return users;
+    },
+    posts: (parent, args, context, info) => {
+      if (args.term) {
+        return posts.filter(
+          (post) =>
+            post.title.toLowerCase().includes(args.term.toLowerCase()) ||
+            post.body.toLowerCase().includes(args.term.toLowerCase())
+        );
+      }
+      return posts;
+    },
+  },
+  Post: {
+    author: (parent, args, context, info) => {
+      return users.find((user) => user.id === parent.author);
+    },
+  },
+  User: {
+    posts: (parent, args, context, info) => {
+      return posts.filter((post) => post.author === parent.id);
     },
   },
 };
