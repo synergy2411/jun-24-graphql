@@ -37,3 +37,4 @@ authorPublishedBooks
 - npm install graphql-yoga graphql
 - npm install nodemon -D
 - npm run dev:start
+- npm install uuid

@@ -1,4 +1,5 @@
 import { createSchema, createYoga } from "graphql-yoga";
+import { GraphQLError } from "graphql";
 import { createServer } from "node:http";
 import { v4 } from "uuid";
 import db from "./db/data.js";
@@ -11,6 +12,8 @@ const typeDefs = /* GraphQL */ `
   }
   type Mutation {
     createUser(data: CreateUserInput): User!
+    createPost(data: CreatePostInput): Post!
+    createComment(data: CreateCommentInput): Comment!
   }
   type User {
     id: ID!
@@ -36,6 +39,16 @@ const typeDefs = /* GraphQL */ `
   input CreateUserInput {
     name: String!
     age: Int!
+  }
+  input CreatePostInput {
+    title: String!
+    body: String!
+    authorId: ID!
+  }
+  input CreateCommentInput {
+    text: String!
+    postId: ID!
+    creatorId: ID!
   }
 `;
 
@@ -83,6 +96,48 @@ const resolvers = {
       };
       db.users.push(newUser);
       return newUser;
+    },
+    createPost: (parent, args, { db }, info) => {
+      const { title, body, authorId } = args.data;
+      const position = db.users.findIndex((user) => user.id === authorId);
+      if (position === -1) {
+        throw new GraphQLError("Unable to find Author for Id - " + authorId);
+      }
+      let newPost = {
+        id: v4(),
+        title,
+        body,
+        published: false,
+        author: authorId,
+      };
+      db.posts.push(newPost);
+      return newPost;
+    },
+    createComment: (parent, { data }, { db }, info) => {
+      const { text, postId, creatorId } = data;
+
+      const foundUser = db.users.find((user) => user.id === creatorId);
+      if (!foundUser) {
+        throw new GraphQLError(
+          "Unable to create comment. Creator not found for id - " + creatorId
+        );
+      }
+
+      const foundPost = db.posts.find((post) => post.id === postId);
+      if (!foundPost) {
+        throw new GraphQLError("Unable to find the post for id -" + postId);
+      }
+
+      const newComment = {
+        id: v4(),
+        text,
+        postId,
+        creator: creatorId,
+      };
+
+      db.comments.push(newComment);
+
+      return newComment;
     },
   },
   Post: {
