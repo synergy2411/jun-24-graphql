@@ -1,49 +1,7 @@
 import { createSchema, createYoga } from "graphql-yoga";
 import { createServer } from "node:http";
+import db from "./db/data.js";
 
-let users = [
-  { id: "u001", name: "Monica Geller", age: 23 },
-  { id: "u002", name: "Rachel Green", age: 22 },
-  { id: "u003", name: "Chandler Bing", age: 24 },
-];
-
-let posts = [
-  {
-    id: "p001",
-    title: "GraphQL 101",
-    body: "Awesome book",
-    published: false,
-    author: "u003",
-  },
-  {
-    id: "p002",
-    title: "Beginning React",
-    body: "Great Library",
-    published: true,
-    author: "u002",
-  },
-  {
-    id: "p003",
-    title: "Advanced Angular",
-    body: "Super-heroic framework",
-    published: false,
-    author: "u001",
-  },
-  {
-    id: "p004",
-    title: "Mastering NodeJS",
-    body: "For advanced users",
-    published: true,
-    author: "u002",
-  },
-];
-
-let comments = [
-  { id: "c001", text: "I like it", postId: "p004", creator: "u001" },
-  { id: "c002", text: "Luv it", postId: "p003", creator: "u003" },
-  { id: "c003", text: "Nice books", postId: "p002", creator: "u001" },
-  { id: "c004", text: "How i read it", postId: "p003", creator: "u002" },
-];
 const typeDefs = /* GraphQL */ `
   type Query {
     users(term: String, sort: Boolean): [User!]!
@@ -75,10 +33,10 @@ const typeDefs = /* GraphQL */ `
 
 const resolvers = {
   Query: {
-    users: (parent, args, context, info) => {
+    users: (parent, args, { db }, info) => {
       if (args.sort) {
         //   return users.filter((user) => user.age > args.age);
-        return users.sort((userA, userB) => {
+        return db.users.sort((userA, userB) => {
           if (userA.age > userB.age) {
             return 1;
           } else if (userB.age > userA.age) {
@@ -87,48 +45,48 @@ const resolvers = {
         });
       }
       if (args.term) {
-        return users.filter((user) =>
+        return db.users.filter((user) =>
           user.name.toLowerCase().includes(args.term.toLowerCase())
         );
       }
-      return users;
+      return db.users;
     },
-    posts: (parent, args, context, info) => {
+    posts: (parent, args, { db }, info) => {
       if (args.term) {
-        return posts.filter(
+        return db.posts.filter(
           (post) =>
             post.title.toLowerCase().includes(args.term.toLowerCase()) ||
             post.body.toLowerCase().includes(args.term.toLowerCase())
         );
       }
-      return posts;
+      return db.posts;
     },
-    comments: () => {
-      return comments;
+    comments: (parent, args, { db }, info) => {
+      return db.comments;
     },
   },
   Post: {
-    author: (parent, args, context, info) => {
-      return users.find((user) => user.id === parent.author);
+    author: (parent, args, { db }, info) => {
+      return db.users.find((user) => user.id === parent.author);
     },
-    comments: (parent, args, context, info) => {
-      return comments.filter((comment) => comment.postId === parent.id);
+    comments: (parent, args, { db }, info) => {
+      return db.comments.filter((comment) => comment.postId === parent.id);
     },
   },
   User: {
-    posts: (parent, args, context, info) => {
-      return posts.filter((post) => post.author === parent.id);
+    posts: (parent, args, { db }, info) => {
+      return db.posts.filter((post) => post.author === parent.id);
     },
-    comments: (parent, args, context, info) => {
-      return comments.filter((comment) => comment.creator === parent.id);
+    comments: (parent, args, { db }, info) => {
+      return db.comments.filter((comment) => comment.creator === parent.id);
     },
   },
   Comment: {
-    post: (parent, args, context, info) => {
-      return posts.find((post) => post.id === parent.postId);
+    post: (parent, args, { db }, info) => {
+      return db.posts.find((post) => post.id === parent.postId);
     },
-    creator: (parent, args, context, info) => {
-      return users.find((user) => user.id === parent.creator);
+    creator: (parent, args, { db }, info) => {
+      return db.users.find((user) => user.id === parent.creator);
     },
   },
 };
@@ -140,6 +98,9 @@ const schema = createSchema({
 
 const yoga = createYoga({
   schema,
+  context: {
+    db,
+  },
 });
 
 const server = createServer(yoga);
