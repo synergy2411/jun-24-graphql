@@ -1,5 +1,6 @@
 import { createSchema, createYoga } from "graphql-yoga";
 import { createServer } from "node:http";
+import { v4 } from "uuid";
 import db from "./db/data.js";
 
 const typeDefs = /* GraphQL */ `
@@ -7,6 +8,9 @@ const typeDefs = /* GraphQL */ `
     users(term: String, sort: Boolean): [User!]!
     posts(term: String): [Post!]!
     comments: [Comment!]!
+  }
+  type Mutation {
+    createUser(data: CreateUserInput): User!
   }
   type User {
     id: ID!
@@ -28,6 +32,10 @@ const typeDefs = /* GraphQL */ `
     text: String!
     post: Post!
     creator: User!
+  }
+  input CreateUserInput {
+    name: String!
+    age: Int!
   }
 `;
 
@@ -63,6 +71,18 @@ const resolvers = {
     },
     comments: (parent, args, { db }, info) => {
       return db.comments;
+    },
+  },
+  Mutation: {
+    createUser: (parent, args, { db }, info) => {
+      const { name, age } = args.data;
+      let newUser = {
+        id: v4(),
+        name,
+        age,
+      };
+      db.users.push(newUser);
+      return newUser;
     },
   },
   Post: {
