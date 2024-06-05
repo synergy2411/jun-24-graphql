@@ -39,25 +39,24 @@ let posts = [
 ];
 
 let comments = [
-  { id: "c001", text: "I like it", postId: "p004" },
-  { id: "c002", text: "Luv it", postId: "p003" },
-  { id: "c003", text: "Nice books", postId: "p002" },
-  { id: "c004", text: "How i read it", postId: "p003" },
+  { id: "c001", text: "I like it", postId: "p004", creator: "u001" },
+  { id: "c002", text: "Luv it", postId: "p003", creator: "u003" },
+  { id: "c003", text: "Nice books", postId: "p002", creator: "u001" },
+  { id: "c004", text: "How i read it", postId: "p003", creator: "u002" },
 ];
 const typeDefs = /* GraphQL */ `
   type Query {
-    users(term: String): [User!]!
+    users(term: String, sort: Boolean): [User!]!
     posts(term: String): [Post!]!
     comments: [Comment!]!
   }
-
   type User {
     id: ID!
     name: String!
     age: Int!
     posts: [Post!]!
+    comments: [Comment!]!
   }
-
   type Post {
     id: ID!
     title: String!
@@ -70,12 +69,23 @@ const typeDefs = /* GraphQL */ `
     id: ID!
     text: String!
     post: Post!
+    creator: User!
   }
 `;
 
 const resolvers = {
   Query: {
     users: (parent, args, context, info) => {
+      if (args.sort) {
+        //   return users.filter((user) => user.age > args.age);
+        return users.sort((userA, userB) => {
+          if (userA.age > userB.age) {
+            return 1;
+          } else if (userB.age > userA.age) {
+            return -1;
+          } else return 0;
+        });
+      }
       if (args.term) {
         return users.filter((user) =>
           user.name.toLowerCase().includes(args.term.toLowerCase())
@@ -109,10 +119,16 @@ const resolvers = {
     posts: (parent, args, context, info) => {
       return posts.filter((post) => post.author === parent.id);
     },
+    comments: (parent, args, context, info) => {
+      return comments.filter((comment) => comment.creator === parent.id);
+    },
   },
   Comment: {
     post: (parent, args, context, info) => {
       return posts.find((post) => post.id === parent.postId);
+    },
+    creator: (parent, args, context, info) => {
+      return users.find((user) => user.id === parent.creator);
     },
   },
 };
