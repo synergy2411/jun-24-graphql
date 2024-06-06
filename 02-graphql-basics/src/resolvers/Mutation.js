@@ -62,7 +62,10 @@ let Mutation = {
       author: authorId,
     };
     db.posts.push(newPost);
-    pubsub.publish("the-post-channel", newPost);
+    pubsub.publish("the-post-channel", {
+      data: newPost,
+      mutationType: "CREATED",
+    });
     return newPost;
   },
   deletePost: (parent, { postId }, { db, pubsub }, info) => {
@@ -73,7 +76,10 @@ let Mutation = {
 
     db.comments = db.comments.filter((comment) => comment.postId !== postId);
     const [deletedPost] = db.posts.splice(position, 1);
-    pubsub.publish("the-post-channel", deletedPost);
+    pubsub.publish("the-post-channel", {
+      data: deletedPost,
+      mutationType: "DELETED",
+    });
     return deletedPost;
   },
   createComment: (parent, { data }, { db }, info) => {
