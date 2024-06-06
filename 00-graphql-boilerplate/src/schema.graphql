@@ -1,0 +1,10 @@
+type Query {
+ hello : String!
+}
+type Mutation {
+  
+}
+
+type Subscription {
+  
+}
