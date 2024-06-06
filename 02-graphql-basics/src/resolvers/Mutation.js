@@ -82,7 +82,7 @@ let Mutation = {
     });
     return deletedPost;
   },
-  createComment: (parent, { data }, { db }, info) => {
+  createComment: (parent, { data }, { db, pubsub }, info) => {
     const { text, postId, creatorId } = data;
 
     const foundUser = db.users.find((user) => user.id === creatorId);
@@ -106,9 +106,14 @@ let Mutation = {
 
     db.comments.push(newComment);
 
+    pubsub.publish("the-comment-channel", {
+      data: newComment,
+      mutationType: "CREATED",
+    });
+
     return newComment;
   },
-  deleteComment: (parent, { commentId }, { db }, info) => {
+  deleteComment: (parent, { commentId }, { db, pubsub }, info) => {
     const position = db.comments.findIndex(
       (comment) => comment.id === commentId
     );
@@ -119,6 +124,11 @@ let Mutation = {
     }
 
     const [deletedComment] = db.comments.splice(position, 1);
+
+    pubsub.publish("the-comment-channel", {
+      data: deletedComment,
+      mutationType: "DELETED",
+    });
 
     return deletedComment;
   },
