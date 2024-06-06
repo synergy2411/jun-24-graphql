@@ -20,6 +20,20 @@ const typeDefs = /* GraphQL */ `
   type Mutation {
     signUp(data: SignUpInput): SignUpPayload!
     signIn(data: SignInInput): SignInPayload!
+    createPost(data: CreatePostInput!): CreatePostPayload!
+  }
+
+  input CreatePostInput {
+    title: String!
+    body: String!
+    published: Boolean
+  }
+
+  type CreatePostPayload {
+    id: ID!
+    title: String!
+    body: String!
+    published: String!
   }
 
   input SignInInput {
@@ -123,6 +137,38 @@ const resolvers = {
         throw new GraphQLError(err);
       }
     },
+
+    createPost: async (parent, args, { token }, info) => {
+      try {
+        if (!token) {
+          throw new GraphQLError("Please Login First. Auth token required.");
+        }
+        const { id } = verify(token, SECRET_KEY);
+
+        const { title, body, published } = args.data;
+
+        // const foundUser = await prisma.user.findUnique({
+        //   where: { id },
+        // });
+
+        // if (!foundUser) {
+        //   throw new GraphQLError("Unable to find user for ID - " + authorId);
+        // }
+
+        const createdPost = await prisma.post.create({
+          data: {
+            title,
+            body,
+            published,
+            authorId: id,
+          },
+        });
+
+        return { ...createdPost };
+      } catch (err) {
+        throw new GraphQLError(err);
+      }
+    },
   },
 };
 
@@ -134,6 +180,18 @@ async function main() {
 
   const yoga = createYoga({
     schema,
+    context: ({ request }) => {
+      const authHeader = request.headers.get("authorization");
+      let token = null;
+
+      if (authHeader) {
+        token = authHeader.split(" ")[1]; // "Bearer tokenValue" => ["Bearer", "tokenValue"]
+      }
+
+      return {
+        token,
+      };
+    },
   });
 
   const server = createServer(yoga);
