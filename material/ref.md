@@ -39,3 +39,19 @@ authorPublishedBooks
 - npm run dev:start
 - npm install uuid
 - npm install graphql-import-files
+
+# MongoDB Atlas Credentials
+
+synergy
+pOLmw5ijeqwAwMnP
+
+mongodb+srv://synergy:pOLmw5ijeqwAwMnP@mycluster.4djbdxz.mongodb.net/?retryWrites=true&w=majority&appName=MyCluster
+
+mongodb+srv://synergy:pOLmw5ijeqwAwMnP@mycluster.4djbdxz.mongodb.net/optum-db
+
+# Prisma - ORM
+
+- npm init -y
+- npm install prisma
+- npx prisma init
+- npx prisma db push
