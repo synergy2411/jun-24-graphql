@@ -38,3 +38,4 @@ authorPublishedBooks
 - npm install nodemon -D
 - npm run dev:start
 - npm install uuid
+- npm install graphql-import-files

@@ -2,55 +2,9 @@ import { createSchema, createYoga } from "graphql-yoga";
 import { GraphQLError } from "graphql";
 import { createServer } from "node:http";
 import { v4 } from "uuid";
-import db from "./db/data.js";
+import { loadFile } from "graphql-import-files";
 
-const typeDefs = /* GraphQL */ `
-  type Query {
-    users(term: String, sort: Boolean): [User!]!
-    posts(term: String): [Post!]!
-    comments: [Comment!]!
-  }
-  type Mutation {
-    createUser(data: CreateUserInput): User!
-    createPost(data: CreatePostInput): Post!
-    createComment(data: CreateCommentInput): Comment!
-  }
-  type User {
-    id: ID!
-    name: String!
-    age: Int!
-    posts: [Post!]!
-    comments: [Comment!]!
-  }
-  type Post {
-    id: ID!
-    title: String!
-    body: String!
-    published: Boolean!
-    author: User!
-    comments: [Comment!]!
-  }
-  type Comment {
-    id: ID!
-    text: String!
-    post: Post!
-    creator: User!
-  }
-  input CreateUserInput {
-    name: String!
-    age: Int!
-  }
-  input CreatePostInput {
-    title: String!
-    body: String!
-    authorId: ID!
-  }
-  input CreateCommentInput {
-    text: String!
-    postId: ID!
-    creatorId: ID!
-  }
-`;
+import db from "./db/data.js";
 
 const resolvers = {
   Query: {
@@ -167,7 +121,7 @@ const resolvers = {
 };
 
 const schema = createSchema({
-  typeDefs, // Abstract Layer of Schema, exposed to client
+  typeDefs: loadFile("./src/schema.graphql"), // Abstract Layer of Schema, exposed to client
   resolvers, // Behaviour, Functions resolving the schema definition
 });
 
