@@ -45,3 +45,6 @@ let comments = [
 let db = { users, posts, comments };
 
 export default db;
+
+// u001 -> p003, c001, c003, c002, c004
+// u002 -> p002, p004, c004, c003, c001

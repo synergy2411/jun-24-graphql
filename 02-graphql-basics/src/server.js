@@ -51,6 +51,26 @@ const resolvers = {
       db.users.push(newUser);
       return newUser;
     },
+    deleteUser: (parent, { userId }, { db }, info) => {
+      const position = db.users.findIndex((user) => user.id === userId);
+      if (position === -1) {
+        throw new GraphQLError("Unable to delete user for id - " + userId);
+      }
+      db.comments = db.comments.filter((comment) => comment.creator !== userId);
+
+      db.posts = db.posts.filter((post) => {
+        const isMatched = post.author === userId;
+        if (isMatched) {
+          db.comments = db.comments.filter(
+            (comment) => comment.postId !== post.id
+          );
+        }
+        return !isMatched;
+      });
+
+      const [deletedUser] = db.users.splice(position, 1);
+      return deletedUser;
+    },
     createPost: (parent, args, { db }, info) => {
       const { title, body, authorId } = args.data;
       const position = db.users.findIndex((user) => user.id === authorId);
