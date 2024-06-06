@@ -3,8 +3,12 @@ import { createServer } from "node:http";
 import { PrismaClient } from "@prisma/client";
 import { GraphQLError } from "graphql";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const { hashSync, compareSync } = bcrypt;
+const { sign, verify } = jwt;
+
+const SECRET_KEY = "MY_SUPER_SECRET_KEY";
 
 const prisma = new PrismaClient();
 
@@ -15,6 +19,15 @@ const typeDefs = /* GraphQL */ `
 
   type Mutation {
     signUp(data: SignUpInput): SignUpPayload!
+    signIn(data: SignInInput): SignInPayload!
+  }
+
+  input SignInInput {
+    email: String!
+    password: String!
+  }
+  type SignInPayload {
+    token: String!
   }
 
   input SignUpInput {
@@ -82,6 +95,30 @@ const resolvers = {
           email: createdUser.email,
           id: createdUser.id,
         };
+      } catch (err) {
+        throw new GraphQLError(err);
+      }
+    },
+
+    signIn: async (parent, args, context, info) => {
+      try {
+        const { email, password } = args.data;
+        const foundUser = await prisma.user.findUnique({ where: { email } });
+        if (!foundUser) {
+          throw new GraphQLError(
+            "Unable to find the user for email - " + email
+          );
+        }
+
+        const isMatch = compareSync(password, foundUser.password);
+
+        if (!isMatch) {
+          throw new GraphQLError("Password does not match. Try again!");
+        }
+
+        //   Generate and return the token
+        const token = sign({ id: foundUser.id }, SECRET_KEY);
+        return { token };
       } catch (err) {
         throw new GraphQLError(err);
       }
