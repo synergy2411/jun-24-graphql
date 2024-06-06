@@ -54,4 +54,9 @@ mongodb+srv://synergy:pOLmw5ijeqwAwMnP@mycluster.4djbdxz.mongodb.net/optum-db
 - npm init -y
 - npm install prisma
 - npx prisma init
+- npm install @prisma/client
 - npx prisma db push
+- node src/server.js -> npm start
+
+- npm install graphql-yoga graphql
+- npm install nodemon -D
