@@ -2,6 +2,9 @@ import { createSchema, createYoga } from "graphql-yoga";
 import { createServer } from "node:http";
 import { PrismaClient } from "@prisma/client";
 import { GraphQLError } from "graphql";
+import bcrypt from "bcrypt";
+
+const { hashSync, compareSync } = bcrypt;
 
 const prisma = new PrismaClient();
 
@@ -61,12 +64,14 @@ const resolvers = {
         let { name, age, email, password, role } = args.data;
         role = role || "ANALYST";
 
+        const hashedPassword = hashSync(password, 12);
+
         const createdUser = await prisma.user.create({
           data: {
             name,
             age,
             email,
-            password,
+            password: hashedPassword,
             role,
           },
         });
