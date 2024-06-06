@@ -6,7 +6,9 @@ type Query {
 type Mutation {
   createUser(data: CreateUserInput): User!
   createPost(data: CreatePostInput): Post!
+  deletePost(postId: ID!): Post!
   createComment(data: CreateCommentInput): Comment!
+  deleteComment(commentId: ID!): Comment!
 }
 type User {
   id: ID!

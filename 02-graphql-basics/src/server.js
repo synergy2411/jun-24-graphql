@@ -67,6 +67,16 @@ const resolvers = {
       db.posts.push(newPost);
       return newPost;
     },
+    deletePost: (parent, { postId }, { db }, info) => {
+      const position = db.posts.findIndex((post) => post.id === postId);
+      if (position === -1) {
+        throw new GraphQLError("Unable to delete post for Id -" + postId);
+      }
+
+      db.comments = db.comments.filter((comment) => comment.postId !== postId);
+      const [deletedPost] = db.posts.splice(position, 1);
+      return deletedPost;
+    },
     createComment: (parent, { data }, { db }, info) => {
       const { text, postId, creatorId } = data;
 
@@ -92,6 +102,20 @@ const resolvers = {
       db.comments.push(newComment);
 
       return newComment;
+    },
+    deleteComment: (parent, { commentId }, { db }, info) => {
+      const position = db.comments.findIndex(
+        (comment) => comment.id === commentId
+      );
+      if (position === -1) {
+        throw new GraphQLError(
+          "Unable to delete the comment for Id -" + commentId
+        );
+      }
+
+      const [deletedComment] = db.comments.splice(position, 1);
+
+      return deletedComment;
     },
   },
   Post: {
