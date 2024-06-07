@@ -1,13 +1,31 @@
 import { useRef } from "react";
+import { useMutation, gql } from "@apollo/client";
+
+const USER_LOGIN = gql`
+  mutation signIn($email: String!, $password: String!) {
+    signIn(data: { email: $email, password: $password }) {
+      token
+    }
+  }
+`;
 
 function LoginPage() {
   const emailRef = useRef();
   const passwordRef = useRef();
+  const [loginMutation, { data, loading, error }] = useMutation(USER_LOGIN);
 
-  const submitHandler = (event) => {
+  console.log(data, loading, error);
+
+  const submitHandler = async (event) => {
     event.preventDefault();
     console.log("Email : ", emailRef.current.value);
     console.log("Password : ", passwordRef.current.value);
+    await loginMutation({
+      variables: {
+        email: emailRef.current.value,
+        password: passwordRef.current.value,
+      },
+    });
   };
 
   return (
@@ -47,8 +65,12 @@ function LoginPage() {
             <div className="row">
               <div className="col-6">
                 <div className="d-grid">
-                  <button type="submit" className="btn btn-primary">
-                    Login
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={loading}
+                  >
+                    {loading ? "Submitting..." : "Login"}
                   </button>
                 </div>
               </div>
