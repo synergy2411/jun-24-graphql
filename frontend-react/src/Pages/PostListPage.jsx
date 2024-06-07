@@ -1,5 +1,6 @@
 import { useQuery, gql } from "@apollo/client";
 import PostItem from "./PostItem";
+import { useEffect } from "react";
 
 const FETCH_POSTS = gql`
   query {
@@ -13,7 +14,11 @@ const FETCH_POSTS = gql`
 `;
 
 function PostListPage() {
-  const { data, loading, error } = useQuery(FETCH_POSTS);
+  const { data, loading, error, refetch } = useQuery(FETCH_POSTS);
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   if (loading) return <h1>Loading....</h1>;
 

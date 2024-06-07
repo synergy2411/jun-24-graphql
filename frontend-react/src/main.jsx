@@ -14,6 +14,7 @@ import HomePage from "./Pages/HomePage.jsx";
 import PostListPage from "./Pages/PostListPage.jsx";
 import LoginPage from "./Pages/LoginPage.jsx";
 import { setContext } from "@apollo/client/link/context";
+import CreatePostPage from "./Pages/CreatePostPage.jsx";
 
 const httpLink = createHttpLink({
   uri: "http://localhost:4040/graphql",
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <LoginPage />,
+      },
+      {
+        path: "/create-post",
+        element: <CreatePostPage />,
       },
     ],
   },

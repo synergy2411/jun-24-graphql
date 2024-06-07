@@ -1,4 +1,5 @@
 import { gql, useMutation } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
 
 const USER_LOGIN = gql`
@@ -9,31 +10,11 @@ const USER_LOGIN = gql`
   }
 `;
 
-const CREATE_POST = gql`
-  mutation createPost {
-    createPost(
-      data: {
-        title: "New Post"
-        body: "Post Created by React App"
-        published: false
-      }
-    ) {
-      id
-      title
-      body
-      published
-    }
-  }
-`;
-
 function LoginPage() {
   const emailRef = useRef();
   const passwordRef = useRef();
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [loginMutation, { loading, error }] = useMutation(USER_LOGIN);
-
-  const [createPostMutation, { loading: postLoading, error: postError }] =
-    useMutation(CREATE_POST);
 
   const submitHandler = (event) => {
     event.preventDefault();
@@ -45,19 +26,11 @@ function LoginPage() {
     }).then((response) => {
       console.log("RESPONSE : ", response);
       localStorage.setItem("token", response.data.signIn.token);
-      //   navigate("/posts");
+      navigate("/create-post");
     });
   };
 
-  const createPostHandler = (event) => {
-    event.preventDefault();
-    createPostMutation()
-      .then((response) => console.log(response))
-      .catch((err) => console.log(err));
-  };
-
-  console.log(postError);
-  if (error || postError) return <h1>Error Occured</h1>;
+  if (error) return <h1>Error Occured</h1>;
 
   return (
     <>
@@ -102,17 +75,6 @@ function LoginPage() {
                     disabled={loading}
                   >
                     {loading ? "Submitting..." : "Login"}
-                  </button>
-                </div>
-              </div>
-              <div className="col-6">
-                <div className="d-grid">
-                  <button
-                    type="button"
-                    className="btn btn-success"
-                    onClick={createPostHandler}
-                  >
-                    {postLoading ? "Creating Post..." : "Create Post"}
                   </button>
                 </div>
               </div>
