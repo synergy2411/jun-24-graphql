@@ -90,3 +90,7 @@ mongodb+srv://synergy:pOLmw5ijeqwAwMnP@mycluster.4djbdxz.mongodb.net/optum-db
 # Frontend with Vanilla JavaSCript
 
 - npm install @apollo/client graphql react
+- npm install jest -D
+- npm install jest-environment-jsdom -D
+- npm install cross-fetch -D
+- npm init jest
