@@ -15,7 +15,9 @@ const FETCH_POSTS = gql`
 function PostListPage() {
   const { data, loading, error } = useQuery(FETCH_POSTS);
 
-  console.log(data, loading, error);
+  if (loading) return <h1>Loading....</h1>;
+
+  if (error) return <h1>Error Occured</h1>;
 
   return (
     <>

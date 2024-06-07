@@ -7,6 +7,7 @@ import App from "./App.jsx";
 import RootLayout from "./Pages/RootLayout.jsx";
 import HomePage from "./Pages/HomePage.jsx";
 import PostListPage from "./Pages/PostListPage.jsx";
+import LoginPage from "./Pages/LoginPage.jsx";
 
 const client = new ApolloClient({
   uri: "http://localhost:4040/graphql",
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: "/posts",
         element: <PostListPage />,
+      },
+      {
+        path: "/login",
+        element: <LoginPage />,
       },
     ],
   },
