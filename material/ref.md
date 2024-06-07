@@ -94,3 +94,11 @@ mongodb+srv://synergy:pOLmw5ijeqwAwMnP@mycluster.4djbdxz.mongodb.net/optum-db
 - npm install jest-environment-jsdom -D
 - npm install cross-fetch -D
 - npm init jest
+
+# Frontend with React
+
+- npm create vite@latest > select React + JavaScript
+- npm install react-router-dom
+- npm install @apollo/client graphql
+- npm install bootstrap
+- npm run dev
