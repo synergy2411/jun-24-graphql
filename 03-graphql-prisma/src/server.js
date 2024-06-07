@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 
 const typeDefs = /* GraphQL */ `
   type Query {
-    users: [User!]!
+    users(take: Int, skip: Int): [User!]!
     posts: [Post!]!
   }
 
@@ -72,6 +72,7 @@ const typeDefs = /* GraphQL */ `
     email: String!
     password: String!
     role: Role
+    Post: [Post!]!
   }
 
   enum Role {
@@ -83,9 +84,24 @@ const typeDefs = /* GraphQL */ `
 
 const resolvers = {
   Query: {
-    users: async () => {
+    users: async (parent, args, context, info) => {
       try {
-        const allUsers = await prisma.user.findMany();
+        const { take, skip } = args;
+
+        const allUsers = await prisma.user.findMany({
+          include: {
+            Post: true,
+          },
+          // where: {
+          //   role: "ANALYST",
+          // },
+          orderBy: {
+            name: "asc",
+          },
+          take: take || 5,
+          skip: skip || 0,
+        });
+
         return allUsers;
       } catch (err) {
         throw new GraphQLError(err);
@@ -214,6 +230,7 @@ async function main() {
   server.listen(4040, () => console.log("Graphql Yoga running on PORT : 4040"));
 }
 
-main()
-  .catch((err) => console.error(err))
-  .finally(() => prisma.$disconnect());
+main().catch((err) => {
+  console.error(err);
+  prisma.$disconnect();
+});
